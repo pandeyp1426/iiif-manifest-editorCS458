@@ -7,6 +7,7 @@ import { type Config, randomId, useConfig } from "@manifest-editor/shell";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { createStore, del, delMany, get, keys, set } from "idb-keyval";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { normalizeManifestForEditor } from "../../helpers/normalize-manifest-for-editor";
 import { queryClient } from "../site/Provider";
 
 const localStore =
@@ -474,7 +475,8 @@ export async function createManifestFromJson(json: any, extra: any = {}) {
   const { projectId, ...extraFields } = extra;
   const id = projectId || randomId();
   const vault = new Vault();
-  const manifest = vault.loadManifestSync(json.id, json);
+  const normalized = normalizeManifestForEditor(json);
+  const manifest = vault.loadManifestSync(normalized.id || json.id, normalized);
 
   if (!manifest) throw new Error("Manifest not found");
 
@@ -499,7 +501,7 @@ export async function createManifestFromJson(json: any, extra: any = {}) {
       label: manifest.label || { en: ["Untitled manifest"] },
       thumbnail: thumb || "",
     },
-    { id: json.id, type: "Import" },
+    { id: normalized.id || json.id, type: "Import" },
     vaultData,
     extraFields,
   );
@@ -511,7 +513,25 @@ export async function createManifestFromId(url: string, extra: any = {}) {
   const { projectId, ...extraFields } = extra;
   const id = projectId || randomId();
   const vault = new Vault();
-  const manifest = await vault.loadManifest(url);
+  let manifest = null;
+  let sourceId = url;
+
+  // Try to normalize before load, then fall back to normal vault loading.
+  try {
+    const response = await fetch(url);
+    if (response.ok) {
+      const normalized = normalizeManifestForEditor(await response.json());
+      sourceId = normalized.id || url;
+      manifest = vault.loadManifestSync(sourceId, normalized);
+    }
+  } catch {
+    // Ignore and fall back.
+  }
+
+  if (!manifest) {
+    manifest = await vault.loadManifest(url);
+    sourceId = manifest?.id || url;
+  }
 
   if (!manifest) throw new Error("Manifest not found");
 
@@ -536,7 +556,7 @@ export async function createManifestFromId(url: string, extra: any = {}) {
       label: manifest.label || { en: ["Untitled manifest"] },
       thumbnail: thumb || "",
     },
-    { id: url, type: "Template" },
+    { id: sourceId, type: "Template" },
     vaultData,
     extraFields,
   );
