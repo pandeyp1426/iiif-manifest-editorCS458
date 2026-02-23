@@ -1,12 +1,12 @@
-import { upgrade } from "@iiif/parser/upgrader";
 import { useQuery } from "@tanstack/react-query";
 import { ManifestEditor } from "manifest-editor";
 import { useMemo } from "react";
+import { normalizeManifestForEditor } from "../../helpers/normalize-manifest-for-editor";
 
 export function SharePreviewEditor({ manifest }: { manifest: string }) {
   const { isPending, data, error } = useQuery({
     queryKey: ["preview-editor", { manifest: manifest }],
-    queryFn: async () => upgrade(await fetch(manifest).then((res) => res.json())),
+    queryFn: async () => normalizeManifestForEditor(await fetch(manifest).then((res) => res.json())),
     staleTime: Number.POSITIVE_INFINITY,
     retryOnMount: false,
     retry: false,

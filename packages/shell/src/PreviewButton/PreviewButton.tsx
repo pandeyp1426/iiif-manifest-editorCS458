@@ -41,7 +41,12 @@ export function PreviewButton({ downloadEnabled, fileName }: { downloadEnabled?:
               if (config.export && config.export.version === 2) {
                 return JSON.stringify(vault.toPresentation2(resource as any), null, 2);
               }
-              return JSON.stringify(vault.toPresentation3(resource as any), null, 2);
+              else if(config.export && config.export.version === 3){
+                return JSON.stringify(vault.toPresentation3(resource as any), null, 2);
+              }
+              else{
+                return JSON.stringify(vault.toPresentation4(resource as any), null, 2);
+              }
             }}
           />
         </div>

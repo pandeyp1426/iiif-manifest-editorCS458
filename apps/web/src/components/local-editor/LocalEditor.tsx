@@ -1,13 +1,13 @@
 "use client";
 
 import { Vault } from "@iiif/helpers";
-import { upgrade } from "@iiif/parser/upgrader";
 import { ManifestEditorLogo } from "@manifest-editor/components";
 import { type FileWithHandle, fileOpen, fileSave, supported } from "browser-fs-access";
 import { ManifestEditor } from "manifest-editor";
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { normalizeManifestForEditor } from "../../helpers/normalize-manifest-for-editor";
 import { GlobalNav } from "../site/GlobalNav";
 
 export default function LocalEditor() {
@@ -35,13 +35,13 @@ export default function LocalEditor() {
               setFile(file);
               const text = await file.text();
               const manifest = JSON.parse(text);
-              setManifest(JSON.parse(text));
-              const upgraded = upgrade(manifest);
-              if (upgraded) {
-                vault.loadManifestSync(upgraded.id, upgraded);
+              const normalized = normalizeManifestForEditor(manifest);
+              setManifest(normalized);
+              if (normalized) {
+                vault.loadManifestSync(normalized.id, normalized);
                 setLastModified(file.lastModified);
               } else {
-                setError("Could not upgrade manifest");
+                setError("Could not read manifest");
               }
             }
           }}

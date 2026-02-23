@@ -136,6 +136,17 @@ export default function GettingStarted() {
           </div>
           <div className="text-sm mt-2 text-center group-hover:text-black text-black/70">Create Exhibition</div>
         </Button>
+        <Button
+          className="w-36 flex items-center flex-col group cursor-default"
+          onPress={() => router.push("/3d-test")}
+        >
+          <div className="bg-me-gray-300 group-hover:bg-me-gray-300/60 rounded w-full h-36 flex items-center justify-center">
+            <div className="w-10 h-10 flex items-center justify-center bg-me-primary-500 rounded-full text-white/70 group-hover:text-white text-2xl">
+              <AddIcon />
+            </div>
+          </div>
+          <div className="text-sm mt-2 text-center group-hover:text-black text-black/70">4.0 Manifest Creation</div>
+        </Button>
       </Toolbar>
       <CreateFromUrlModal isOpen={isModalOpen} setIsOpen={setIsModalOpen} />
       <IIIFBrowserModal isOpen={isIIIFBrowserOpen} setIsOpen={setIsIIIFBrowserOpen} />

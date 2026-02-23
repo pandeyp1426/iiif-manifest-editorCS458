@@ -19,6 +19,7 @@ import { type SVGProps, useCallback, useMemo, useRef, useState } from "react";
 import { Link } from "react-aria-components";
 import { useExistingVault, VaultProvider } from "react-iiif-vault";
 import { twMerge } from "tailwind-merge";
+import { normalizeManifestForEditor } from "../../helpers/normalize-manifest-for-editor";
 
 const presets: Record<string, MappedApp> = {
   manifest: mapApp(manifestPreset),
@@ -61,8 +62,9 @@ export default function ExternalEditor({ manifest, preset }: { manifest: string;
       }
 
       const manifestJson: any = await resp.json();
+      const normalized = normalizeManifestForEditor(manifestJson);
 
-      const loaded = vault.loadManifestSync(manifestJson.id || manifestJson["@id"], manifestJson);
+      const loaded = vault.loadManifestSync((normalized as any).id || (normalized as any)["@id"], normalized);
 
       if (!loaded) {
         return null;
@@ -81,7 +83,7 @@ export default function ExternalEditor({ manifest, preset }: { manifest: string;
           id: loaded.id,
           type: "Manifest",
         },
-        json: manifestJson,
+        json: normalized,
       };
     },
   });

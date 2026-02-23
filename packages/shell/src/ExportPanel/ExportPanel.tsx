@@ -19,6 +19,10 @@ export function ExportPanel(props: ExportPanelProps) {
   const vault = useVault();
   const actions = useLayoutActions();
 
+  const version4 = useMemo(() => {
+    return JSON.stringify(vault.toPresentation4(manifest as any), null, 2);
+  }, [manifest, vault]);
+
   const version3 = useMemo(() => {
     return JSON.stringify(vault.toPresentation3(manifest as any), null, 2);
   }, [manifest, vault]);
@@ -32,6 +36,30 @@ export function ExportPanel(props: ExportPanelProps) {
       <div style={{ flex: 1, overflowY: "auto" }}>
         <Accordion
           items={[
+            {
+              label: "Presentation 4",
+              description: 'Download this version by clicking the "Download" button.',
+              maxHeight: 400,
+              large: true,
+              initialOpen: true,
+              overflow: true,
+              icon: (
+                <Button onClick={() => createDownload(version4, "manifest.json")}>
+                  <DownloadIcon />
+                </Button>
+              ),
+              children: (
+                <div style={{ maxWidth: "100%" }}>
+                  <pre style={{ whiteSpace: "pre-wrap" }}>
+                    {JSON.stringify(vault.toPresentation4(manifest as any), null, 2)}
+                  </pre>
+                  <ButtonRow data-sticky="true">
+                    <Button onClick={() => copyToClipboard(version4)}>Copy to clipboard</Button>
+                    <Button onClick={() => createDownload(version4, "manifest.json")}>Download</Button>
+                  </ButtonRow>
+                </div>
+              ),
+            },
             {
               label: "Presentation 3",
               description: 'Download this version by clicking the "Download" button.',
